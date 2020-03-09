@@ -212,22 +212,21 @@ ll count(BPlusTreeNode *node, ll num)
 	return c;
 }
 
-void range(BPlusTreeNode *node, ll x, ll y)
+void range(BPlusTreeNode *node, ll x, ll y, ll &c)
 {
 	if(node == NULL)
 		return;
 	for(ll i = 0; i < ORDER - 1; i++)
 	{
 		if(node->key[i] >= x && node->key[i] <= y){
-			//cout << node->key[i] << "\n";
-			fout << node->key[i] << "\n";
+			c++;
 		}
 		if(node->key[i] > y)
 			break;
 		if(node->key[i] == LONG_LONG_MAX)
-			range(node->child_ptr[2], x, y);
+			range(node->child_ptr[2], x, y, c);
 	}
-	range(node->child_ptr[2], x, y);
+	range(node->child_ptr[2], x, y, c);
 	return;
 }
 
@@ -271,66 +270,84 @@ int main(int argc, char **argv)
 		vector< string > command = split(line);
 		
 		//cout << line <<"\n";
-
-		if(command[0] == "INSERT"){
-			x = stoll(command[1]);
-			BPlusTreeNode *node = findBlock(root, x);
-			
-			if(node == NULL)
-			{
-				root = initialize();
-				root->key[0] = x;
-				root->isleaf = true;
-			}
-			else{
-				//getchar();
-				//cout << node->key[0] <<"\n";
-				root = insert(node, x);
-			}
-		}
-		else if(command[0] == "FIND"){
-			x = stoll(command[1]);
-			BPlusTreeNode *node = findBlock(root, x);
-			if(node == NULL)
-				cout << "NO\n";
-			else
-			{
-				if(find(node, x))
+		try{
+			if(command[0] == "INSERT"){
+				x = stoll(command[1]);
+				BPlusTreeNode *node = findBlock(root, x);
+				
+				if(node == NULL)
 				{
-					//cout << "YES\n";
-					fout << "YES\n";
+					root = initialize();
+					root->key[0] = x;
+					root->isleaf = true;
 				}
-				else
+				else{
+					//getchar();
+					//cout << node->key[0] <<"\n";
+					root = insert(node, x);
+				}
+			}
+			else if(command[0] == "FIND"){
+				x = stoll(command[1]);
+				BPlusTreeNode *node = findBlock(root, x);
+				if(node == NULL)
 				{
 					//cout << "NO\n";
 					fout << "NO\n";
 				}
+				else
+				{
+					if(find(node, x))
+					{
+						//cout << "YES\n";
+						fout << "YES\n";
+					}
+					else
+					{
+						//cout << "NO\n";
+						fout << "NO\n";
+					}
+				}
+			}
+			else if(command[0] == "COUNT"){
+				x = stoll(command[1]);
+				BPlusTreeNode *node = findBlock(root, x);
+				if(node == NULL)
+				{
+					//cout << "0\n";
+					fout << "o\n";
+				}
+				else
+				{
+					//cout << count(node, x) << "\n";
+					fout << count(node, x) << "\n";
+				}
+			}
+			else if(command[0] == "RANGE"){
+				x = stoll(command[1]);
+				y = stoll(command[2]);
+				BPlusTreeNode *node = findBlock(root, x);
+				if(node == NULL)
+				{
+					//cout << "0\n";
+					fout << "0\n";
+				}
+				else
+				{
+					ll c = 0;
+					range(node, x, y, c);
+					//cout << c <<"\n";
+					fout << c <<"\n";
+				}
+			}
+			else if(command[0] != ""){
+				cout << "Invalid Command\n";
+				exit(0);
 			}
 		}
-		else if(command[0] == "COUNT"){
-			x = stoll(command[1]);
-			BPlusTreeNode *node = findBlock(root, x);
-			if(node == NULL)
-				cout << "0\n";
-			else
-			{
-				//cout << count(node, x) << "\n";
-				fout << count(node, x) << "\n";
-			}
-		}
-		else if(command[0] == "RANGE"){
-			x = stoll(command[1]);
-			y = stoll(command[2]);
-			BPlusTreeNode *node = findBlock(root, x);
-			if(node == NULL)
-				cout << "0\n";
-			else
-			{	range(node, x, y);
-				//cout << "\n";
-			}
-		}
-		else if(command[0] != ""){
-			cout << "Invalid Command\n";
+		catch(...)
+		{
+			cout << "Syntax Error\n";
 			exit(0);
 		}
 
